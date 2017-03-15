@@ -76,7 +76,7 @@
 #define USE_BN_ECC_DATA
 /* Comment these out as needed */
 #ifndef SIMULATION
-#  define SIMULATION
+//#  define SIMULATION
 #endif
 /* Define this to run the function that checks the format compatibility for the chosen big number
    math library. Not all ports use this. */
