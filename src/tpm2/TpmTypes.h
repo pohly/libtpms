@@ -1798,16 +1798,18 @@ typedef union {
     TPM2B        b;
 } TPM2B_ID_OBJECT;
 /* Table 2:202 - Definition of TPM_NV_INDEX Bits (BitsTable()) */
+#if 0
 typedef struct {
 #if LITTLE_ENDIAN_TPM == YES
     unsigned    index   : 24;
     unsigned    RH_NV   : 8 ;
 #endif
 #if BIG_ENDIAN_TPM == YES
-    unsigned    RH_NV_be   : 8 ; // FIXME
-    unsigned    index_be   : 24; // FIXME
+    unsigned    RH_NV   : 8 ;
+    unsigned    index   : 24; // FIXME: swap bytes
 #endif
 } TPM_NV_INDEX;
+#endif
 /* Table 2:203 - Definition of TPM_NT Constants (EnumTable()) */
 typedef  UINT32             TPM_NT;
 #define  TPM_NT_ORDINARY    (TPM_NT)(0x0)

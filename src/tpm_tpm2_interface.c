@@ -57,6 +57,7 @@
 #include "tpm2/TpmTcpProtocol.h"
 #include "tpm2/Simulator_fp.h"
 #include "tpm2/_TPM_Hash_Data_fp.h"
+#include "tpm2/StateMarshal.h"
 
 /*
  * Check whether the main NVRAM file exists. Return TRUE if it doesn, FALSE otherwise
@@ -153,7 +154,7 @@ TPM_RESULT TPM2_Process(unsigned char **respbuffer, uint32_t *resp_size,
     req.Buffer = command;
 
     /* have the TPM 2 write directly into the response buffer */
-    if (*respbufsize < TPM_BUFFER_MAX) {
+    if (*respbufsize < TPM_BUFFER_MAX || !*respbuffer) {
         res = TPM_Realloc(respbuffer, TPM_BUFFER_MAX);
         if (res)
             return res;
@@ -177,8 +178,29 @@ TPM_RESULT TPM2_Process(unsigned char **respbuffer, uint32_t *resp_size,
 TPM_RESULT TPM2_VolatileAllStore(unsigned char **buffer,
                                  uint32_t *buflen)
 {
-    // FIXME: Is there a function for this?
-    return TPM_FAIL;
+    TPM_RESULT rc;
+    INT32 size = NV_MEMORY_SIZE;
+    UINT16 written;
+    unsigned char *statebuffer = NULL;
+
+    *buffer = NULL;
+    rc = TPM_Realloc(&statebuffer, size);
+    if (rc)
+        return rc;
+
+    /* statebuffer will change */
+    *buffer = statebuffer;
+
+    written = VolatileSave(&statebuffer, &size);
+    if (written >= size) {
+        TPM_Free(*buffer);
+        *buffer = NULL;
+        rc = TPM_FAIL;
+    } else {
+        *buflen = written;
+    }
+
+    return rc;
 }
 
 TPM_RESULT TPM2_CancelCommand(void)
