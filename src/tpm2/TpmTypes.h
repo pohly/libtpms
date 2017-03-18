@@ -496,6 +496,7 @@ typedef  TPM_HANDLE         TPM_HC;
 #define  AC_LAST                 (TPM_HC)((HR_AC+0x0000FFFF))
 /* Table 2:30 - Definition of TPMA_ALGORITHM Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
 	unsigned    asymmetric         : 1 ;
 	unsigned    symmetric          : 1 ;
 	unsigned    hash               : 1 ;
@@ -505,6 +506,18 @@ typedef struct {
 	unsigned    encrypting         : 1 ;
 	unsigned    method             : 1 ;
 	unsigned    Reserved_at_bit_11 : 21;
+#endif
+#if BIG_ENDIAN_TPM == YES
+	unsigned    Reserved_at_bit_11 : 21;
+	unsigned    method             : 1 ;
+	unsigned    encrypting         : 1 ;
+	unsigned    signing            : 1 ;
+	unsigned    Reserved_at_bit_4  : 4 ;
+	unsigned    object             : 1 ;
+	unsigned    hash               : 1 ;
+	unsigned    symmetric          : 1 ;
+	unsigned    asymmetric         : 1 ;
+#endif
 } TPMA_ALGORITHM;
 #define TPMA_ALGORITHM_ASYMMETRIC 	0x00000001
 #define TPMA_ALGORITHM_SYMMETRIC 	0x00000002
@@ -536,6 +549,7 @@ typedef struct {
     ((attribute.method) != 0)
 /* Table 2:31 - Definition of TPMA_OBJECT Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
 	unsigned    Reserved_at_bit_0      : 1 ;
 	unsigned    fixedTPM               : 1 ;
 	unsigned    stClear                : 1 ;
@@ -552,6 +566,25 @@ typedef struct {
 	unsigned    decrypt                : 1 ;
 	unsigned    sign                   : 1 ;
 	unsigned    Reserved_at_bit_19     : 13;
+#endif
+#if BIG_ENDIAN_TPM == YES
+	unsigned    Reserved_at_bit_19     : 13;
+	unsigned    sign                   : 1 ;
+	unsigned    decrypt                : 1 ;
+	unsigned    restricted             : 1 ;
+	unsigned    Reserved_at_bit_12     : 4 ;
+	unsigned    encryptedDuplication   : 1 ;
+	unsigned    noDA                   : 1 ;
+	unsigned    Reserved_at_bit_8      : 2 ;
+	unsigned    adminWithPolicy        : 1 ;
+	unsigned    userWithAuth           : 1 ;
+	unsigned    sensitiveDataOrigin    : 1 ;
+	unsigned    fixedParent            : 1 ;
+	unsigned    Reserved_at_bit_3      : 1 ;
+	unsigned    stClear                : 1 ;
+	unsigned    fixedTPM               : 1 ;
+	unsigned    Reserved_at_bit_0      : 1 ;
+#endif
 } TPMA_OBJECT;
 #define TPMA_OBJECT_RESERVED1			0x00000001
 #define TPMA_OBJECT_FIXEDTPM			0x00000002
@@ -604,6 +637,7 @@ typedef struct {
 /* Table 2:32 - Definition of TPMA_SESSION Bits (BitsTable()) */
 typedef union {
     struct {
+#if LITTLE_ENDIAN_TPM == YES
 	unsigned    continueSession   : 1 ;
 	unsigned    auditExclusive    : 1 ;
 	unsigned    auditReset        : 1 ;
@@ -611,7 +645,21 @@ typedef union {
 	unsigned    decrypt           : 1 ;
 	unsigned    encrypt           : 1 ;
 	unsigned    audit             : 1 ;
+#endif
+#if BIG_ENDIAN_TPM == YES
+	unsigned    audit             : 1 ;
+	unsigned    encrypt           : 1 ;
+	unsigned    decrypt           : 1 ;
+	unsigned    Reserved_at_bit_3 : 2 ;
+	unsigned    auditReset        : 1 ;
+	unsigned    auditExclusive    : 1 ;
+	unsigned    continueSession   : 1 ;
+#endif
     };
+#if BIG_ENDIAN_TPM == YES
+    /* gcc makes this a 32bit structure; enable access via val */
+    UINT8 reserved[3];
+#endif
     UINT8 val;
 } TPMA_SESSION;
 #define TPMA_SESSION_CONTINUESESSION	0x01
@@ -638,13 +686,27 @@ typedef union {
 /* Table 2:33 - Definition of TPMA_LOCALITY Bits (BitsTable()) */
 typedef union {
     struct {
+#if LITTLE_ENDIAN_TPM
 	unsigned    TPM_LOC_ZERO    : 1 ;
 	unsigned    TPM_LOC_ONE     : 1 ;
 	unsigned    TPM_LOC_TWO     : 1 ;
 	unsigned    TPM_LOC_THREE   : 1 ;
 	unsigned    TPM_LOC_FOUR    : 1 ;
 	unsigned    Extended        : 3 ;
+#endif
+#if BIG_ENDIAN_TPM
+	unsigned    Extended        : 3 ;
+	unsigned    TPM_LOC_FOUR    : 1 ;
+	unsigned    TPM_LOC_THREE   : 1 ;
+	unsigned    TPM_LOC_TWO     : 1 ;
+	unsigned    TPM_LOC_ONE     : 1 ;
+	unsigned    TPM_LOC_ZERO    : 1 ;
+#endif
     };
+#if BIG_ENDIAN_TPM
+    /* gcc makes this a 32bit structure; enable access via val */
+    UINT8 reserved[3];
+#endif
     UINT8 val;
 } TPMA_LOCALITY;
 #define IsLocality_TPM_LOC_ZERO(attribute)	\
@@ -659,6 +721,7 @@ typedef union {
     ((attribute.TPM_LOC_FOUR) != 0)
 /* Table 2:34 - Definition of TPMA_PERMANENT Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
     unsigned    ownerAuthSet         : 1 ;
     unsigned    endorsementAuthSet   : 1 ;
     unsigned    lockoutAuthSet       : 1 ;
@@ -667,6 +730,17 @@ typedef struct {
     unsigned    inLockout            : 1 ;
     unsigned    tpmGeneratedEPS      : 1 ;
     unsigned    Reserved_at_bit_11   : 21;
+#endif
+#if BIG_ENDIAN_TPM == YES
+    unsigned    Reserved_at_bit_11   : 21;
+    unsigned    tpmGeneratedEPS      : 1 ;
+    unsigned    inLockout            : 1 ;
+    unsigned    disableClear         : 1 ;
+    unsigned    Reserved_at_bit_3    : 5 ;
+    unsigned    lockoutAuthSet       : 1 ;
+    unsigned    endorsementAuthSet   : 1 ;
+    unsigned    ownerAuthSet         : 1 ;
+#endif
 } TPMA_PERMANENT;
 #define IsPermanent_ownerAuthSet(attribute)	\
     ((attribute.ownerAuthSet) != 0)
@@ -682,12 +756,22 @@ typedef struct {
     ((attribute.tpmGeneratedEPS) != 0)
 /* Table 2:35 - Definition of TPMA_STARTUP_CLEAR Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
     unsigned    phEnable          : 1 ;
     unsigned    shEnable          : 1 ;
     unsigned    ehEnable          : 1 ;
     unsigned    phEnableNV        : 1 ;
     unsigned    Reserved_at_bit_4 : 27;
     unsigned    orderly           : 1 ;
+#endif
+#if BIG_ENDIAN_TPM == YES
+    unsigned    orderly           : 1 ;
+    unsigned    Reserved_at_bit_4 : 27;
+    unsigned    phEnableNV        : 1 ;
+    unsigned    ehEnable          : 1 ;
+    unsigned    shEnable          : 1 ;
+    unsigned    phEnable          : 1 ;
+#endif
 } TPMA_STARTUP_CLEAR;
 #define IsStartupClear_phEnable(attribute)	\
     ((attribute.phEnable) != 0)
@@ -701,10 +785,18 @@ typedef struct {
     ((attribute.orderly) != 0)
 /* Table 2:36 - Definition of TPMA_MEMORY Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
     unsigned    sharedRAM           : 1 ;
     unsigned    sharedNV            : 1 ;
     unsigned    objectCopiedToRam   : 1 ;
     unsigned    Reserved_at_bit_3   : 29;
+#endif
+#if BIG_ENDIAN_TPM == YES
+    unsigned    Reserved_at_bit_3   : 29;
+    unsigned    objectCopiedToRam   : 1 ;
+    unsigned    sharedNV            : 1 ;
+    unsigned    sharedRAM           : 1 ;
+#endif
 } TPMA_MEMORY;
 #define IsMemory_sharedRAM(attribute)		\
     ((attribute.sharedRAM) != 0)
@@ -714,6 +806,7 @@ typedef struct {
     ((attribute.objectCopiedToRam) != 0)
 /* Table 2:37 - Definition of TPMA_CC Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
 	unsigned    commandIndex       : 16;
 	unsigned    Reserved_at_bit_16 : 6 ;
 	unsigned    nv                 : 1 ;
@@ -723,6 +816,18 @@ typedef struct {
 	unsigned    rHandle            : 1 ;
 	unsigned    V                  : 1 ;
 	unsigned    Res                : 2 ;
+#endif
+#if BIG_ENDIAN_TPM == YES
+	unsigned    Res                : 2 ;
+	unsigned    V                  : 1 ;
+	unsigned    rHandle            : 1 ;
+	unsigned    cHandles           : 3 ;
+	unsigned    flushed            : 1 ;
+	unsigned    extensive          : 1 ;
+	unsigned    nv                 : 1 ;
+	unsigned    Reserved_at_bit_16 : 6 ;
+	unsigned    commandIndex       : 16;
+#endif
 } TPMA_CC;
 #define TPMA_CC_COMMANDINDEX	0x0000ffff
 #define TPMA_CC_RESERVED1	0x003f0000
@@ -746,8 +851,14 @@ typedef struct {
     ((attribute.V) != 0)
 /* Table 2:38 - Definition of TPMA_MODES Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
     unsigned    FIPS_140_2        : 1 ;
     unsigned    Reserved_at_bit_1 : 31;
+#endif
+#if BIG_ENDIAN_TPM == YES
+    unsigned    Reserved_at_bit_1 : 31;
+    unsigned    FIPS_140_2        : 1 ;
+#endif
 } TPMA_MODES;
 #define IsModes_FIPS_140_2(attribute)		\
     ((attribute.FIPS_140_2) != 0)
@@ -1688,8 +1799,14 @@ typedef union {
 } TPM2B_ID_OBJECT;
 /* Table 2:202 - Definition of TPM_NV_INDEX Bits (BitsTable()) */
 typedef struct {
+#if LITTLE_ENDIAN_TPM == YES
     unsigned    index   : 24;
     unsigned    RH_NV   : 8 ;
+#endif
+#if BIG_ENDIAN_TPM == YES
+    unsigned    RH_NV_be   : 8 ; // FIXME
+    unsigned    index_be   : 24; // FIXME
+#endif
 } TPM_NV_INDEX;
 /* Table 2:203 - Definition of TPM_NT Constants (EnumTable()) */
 typedef  UINT32             TPM_NT;
@@ -1707,6 +1824,7 @@ typedef struct {
 /* Table 2:205 - Definition of TPMA_NV Bits (BitsTable()) */
 typedef union {
     struct {
+#if LITTLE_ENDIAN_TPM == YES
 	unsigned    TPMA_NV_PPWRITE          : 1 ;
 	unsigned    TPMA_NV_OWNERWRITE       : 1 ;
 	unsigned    TPMA_NV_AUTHWRITE        : 1 ;
@@ -1731,6 +1849,33 @@ typedef union {
 	unsigned    TPMA_NV_WRITTEN          : 1 ;
 	unsigned    TPMA_NV_PLATFORMCREATE   : 1 ;
 	unsigned    TPMA_NV_READ_STCLEAR     : 1 ;
+#endif
+#if BIG_ENDIAN_TPM == YES
+	unsigned    TPMA_NV_READ_STCLEAR     : 1 ;
+	unsigned    TPMA_NV_PLATFORMCREATE   : 1 ;
+	unsigned    TPMA_NV_WRITTEN          : 1 ;
+	unsigned    TPMA_NV_READLOCKED       : 1 ;
+	unsigned    TPMA_NV_CLEAR_STCLEAR    : 1 ;
+	unsigned    TPMA_NV_ORDERLY          : 1 ;
+	unsigned    TPMA_NV_NO_DA            : 1 ;
+	unsigned    Reserved_at_bit_20       : 5 ;
+	unsigned    TPMA_NV_POLICYREAD       : 1 ;
+	unsigned    TPMA_NV_AUTHREAD         : 1 ;
+	unsigned    TPMA_NV_OWNERREAD        : 1 ;
+	unsigned    TPMA_NV_PPREAD           : 1 ;
+	unsigned    TPMA_NV_GLOBALLOCK       : 1 ;
+	unsigned    TPMA_NV_WRITE_STCLEAR    : 1 ;
+	unsigned    TPMA_NV_WRITEDEFINE      : 1 ;
+	unsigned    TPMA_NV_WRITEALL         : 1 ;
+	unsigned    TPMA_NV_WRITELOCKED      : 1 ;
+	unsigned    TPMA_NV_POLICY_DELETE    : 1 ;
+	unsigned    Reserved_at_bit_8        : 2 ;
+	unsigned    TPM_NT                   : 4 ;
+	unsigned    TPMA_NV_POLICYWRITE      : 1 ;
+	unsigned    TPMA_NV_AUTHWRITE        : 1 ;
+	unsigned    TPMA_NV_OWNERWRITE       : 1 ;
+	unsigned    TPMA_NV_PPWRITE          : 1 ;
+#endif
     };
     UINT32 val;
 } TPMA_NV;
