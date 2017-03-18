@@ -70,106 +70,116 @@ typedef struct
     TPM_ALG_ID          algID;
     TPMA_ALGORITHM      attributes;
 } ALGORITHM;
+
+#if LITTLE_ENDIAN_TPM == YES
+#define ALGORITHM_BITS(ASYM, SYM, HASH, OBJECT, RES1, SIGN, ENCRYPT, METHOD, RES2) \
+  {ASYM, SYM, HASH, OBJECT, RES1, SIGN, ENCRYPT, METHOD, RES2}
+#endif
+#if BIG_ENDIAN_TPM == YES
+#define ALGORITHM_BITS(ASYM, SYM, HASH, OBJECT, RES1, SIGN, ENCRYPT, METHOD, RES2) \
+  {RES2, METHOD, ENCRYPT, SIGN, RES1, OBJECT, HASH, SYM, ASYM}
+#endif
+
 static const ALGORITHM    s_algorithms[] =
     {
 	// The entries in this table need to be in ascending order but the table doesn't
 	// need to be full (gaps are allowed). One day, a tool might exist to fill in the
 	// table from the TPM_ALG description
 #ifdef TPM_ALG_RSA
-	{TPM_ALG_RSA,           {1, 0, 0, 1, 0, 0, 0, 0, 0}},
+	{TPM_ALG_RSA,           ALGORITHM_BITS(1, 0, 0, 1, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_TDES
-	{TPM_ALG_TDES,          {0, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_TDES,          ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_SHA1
-	{TPM_ALG_SHA1,          {0, 0, 1, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_SHA1,          ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 0, 0)},
 #endif
-	{TPM_ALG_HMAC,          {0, 0, 1, 0, 0, 1, 0, 0, 0}},
+	{TPM_ALG_HMAC,          ALGORITHM_BITS(0, 0, 1, 0, 0, 1, 0, 0, 0)},
 #ifdef TPM_ALG_AES
-	{TPM_ALG_AES,           {0, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_AES,           ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_MGF1
-	{TPM_ALG_MGF1,          {0, 0, 1, 0, 0, 0, 0, 1, 0}},
+	{TPM_ALG_MGF1,          ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 1, 0)},
 #endif
-	{TPM_ALG_KEYEDHASH,     {0, 0, 1, 1, 0, 1, 1, 0, 0}},
+	{TPM_ALG_KEYEDHASH,     ALGORITHM_BITS(0, 0, 1, 1, 0, 1, 1, 0, 0)},
 #ifdef TPM_ALG_XOR
-	{TPM_ALG_XOR,           {0, 1, 1, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_XOR,           ALGORITHM_BITS(0, 1, 1, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_SHA256
-	{TPM_ALG_SHA256,        {0, 0, 1, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_SHA256,        ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_SHA384
-	{TPM_ALG_SHA384,        {0, 0, 1, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_SHA384,        ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_SHA512
-	{TPM_ALG_SHA512,        {0, 0, 1, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_SHA512,        ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_SM3_256
-	{TPM_ALG_SM3_256,       {0, 0, 1, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_SM3_256,       ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_SM4
-	{TPM_ALG_SM4,          {0, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_SM4,          ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_RSASSA
-	{TPM_ALG_RSASSA,        {1, 0, 0, 0, 0, 1, 0, 0, 0}},
+	{TPM_ALG_RSASSA,        ALGORITHM_BITS(1, 0, 0, 0, 0, 1, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_RSAES
-	{TPM_ALG_RSAES,         {1, 0, 0, 0, 0, 0, 1, 0, 0}},
+	{TPM_ALG_RSAES,         ALGORITHM_BITS(1, 0, 0, 0, 0, 0, 1, 0, 0)},
 #endif
 #ifdef TPM_ALG_RSAPSS
-	{TPM_ALG_RSAPSS,        {1, 0, 0, 0, 0, 1, 0, 0, 0}},
+	{TPM_ALG_RSAPSS,        ALGORITHM_BITS(1, 0, 0, 0, 0, 1, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_OAEP
-	{TPM_ALG_OAEP,          {1, 0, 0, 0, 0, 0, 1, 0, 0}},
+	{TPM_ALG_OAEP,          ALGORITHM_BITS(1, 0, 0, 0, 0, 0, 1, 0, 0)},
 #endif
 #ifdef TPM_ALG_ECDSA
-	{TPM_ALG_ECDSA,         {1, 0, 0, 0, 0, 1, 0, 1, 0}},
+	{TPM_ALG_ECDSA,         ALGORITHM_BITS(1, 0, 0, 0, 0, 1, 0, 1, 0)},
 #endif
 #ifdef TPM_ALG_ECDH
-	{TPM_ALG_ECDH,          {1, 0, 0, 0, 0, 0, 0, 1, 0}},
+	{TPM_ALG_ECDH,          ALGORITHM_BITS(1, 0, 0, 0, 0, 0, 0, 1, 0)},
 #endif
 #ifdef TPM_ALG_ECDAA
-	{TPM_ALG_ECDAA,         {1, 0, 0, 0, 0, 1, 0, 0, 0}},
+	{TPM_ALG_ECDAA,         ALGORITHM_BITS(1, 0, 0, 0, 0, 1, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_SM2
-	{TPM_ALG_SM2,           {1, 0, 0, 0, 0, 1, 0, 1, 0}},
+	{TPM_ALG_SM2,           ALGORITHM_BITS(1, 0, 0, 0, 0, 1, 0, 1, 0)},
 #endif
 #ifdef TPM_ALG_ECSCHNORR
-	{TPM_ALG_ECSCHNORR,     {1, 0, 0, 0, 0, 1, 0, 0, 0}},
+	{TPM_ALG_ECSCHNORR,     ALGORITHM_BITS(1, 0, 0, 0, 0, 1, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_ECMQV
-	{TPM_ALG_ECMQV,         {1, 0, 0, 0, 0, 0, 0, 1, 0}},
+	{TPM_ALG_ECMQV,         ALGORITHM_BITS(1, 0, 0, 0, 0, 0, 0, 1, 0)},
 #endif
 #ifdef TPM_ALG_KDF1_SP800_56A
-	{TPM_ALG_KDF1_SP800_56A,{0, 0, 1, 0, 0, 0, 0, 1, 0}},
+	{TPM_ALG_KDF1_SP800_56A,ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 1, 0)},
 #endif
 #ifdef TPM_ALG_KDF2
-	{TPM_ALG_KDF2,          {0, 0, 1, 0, 0, 0, 0, 1, 0}},
+	{TPM_ALG_KDF2,          ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 1, 0)},
 #endif
 #ifdef TPM_ALG_KDF1_SP800_108
-	{TPM_ALG_KDF1_SP800_108,{0, 0, 1, 0, 0, 0, 0, 1, 0}},
+	{TPM_ALG_KDF1_SP800_108,ALGORITHM_BITS(0, 0, 1, 0, 0, 0, 0, 1, 0)},
 #endif
 #ifdef TPM_ALG_ECC
-	{TPM_ALG_ECC,           {1, 0, 0, 1, 0, 0, 0, 0, 0}},
+	{TPM_ALG_ECC,           ALGORITHM_BITS(1, 0, 0, 1, 0, 0, 0, 0, 0)},
 #endif
-	{TPM_ALG_SYMCIPHER,     {0, 0, 0, 1, 0, 0, 0, 0, 0}},
+	{TPM_ALG_SYMCIPHER,     ALGORITHM_BITS(0, 0, 0, 1, 0, 0, 0, 0, 0)},
 #ifdef TPM_ALG_CAMELLIA
-	{TPM_ALG_CAMELLIA,      {0, 1, 0, 0, 0, 0, 0, 0, 0}},
+	{TPM_ALG_CAMELLIA,      ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 0, 0, 0)},
 #endif
 #ifdef TPM_ALG_CTR
-	{TPM_ALG_CTR,           {0, 1, 0, 0, 0, 0, 1, 0, 0}},
+	{TPM_ALG_CTR,           ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 1, 0, 0)},
 #endif
 #ifdef TPM_ALG_OFB
-	{TPM_ALG_OFB,           {0, 1, 0, 0, 0, 0, 1, 0, 0}},
+	{TPM_ALG_OFB,           ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 1, 0, 0)},
 #endif
 #ifdef TPM_ALG_CBC
-	{TPM_ALG_CBC,           {0, 1, 0, 0, 0, 0, 1, 0, 0}},
+	{TPM_ALG_CBC,           ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 1, 0, 0)},
 #endif
 #ifdef TPM_ALG_CFB
-	{TPM_ALG_CFB,           {0, 1, 0, 0, 0, 0, 1, 0, 0}},
+	{TPM_ALG_CFB,           ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 1, 0, 0)},
 #endif
 #ifdef TPM_ALG_ECB
-	{TPM_ALG_ECB,           {0, 1, 0, 0, 0, 0, 1, 0, 0}},
+	{TPM_ALG_ECB,           ALGORITHM_BITS(0, 1, 0, 0, 0, 0, 1, 0, 0)},
 #endif
     };
 /* 9.1.3 AlgorithmCapGetImplemented() */
