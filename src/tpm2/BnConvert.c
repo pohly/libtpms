@@ -186,6 +186,11 @@ BnToBytes(
     BYTE                *pFrom;
     BYTE                *pTo;
     crypt_uword_t        count;
+#if BIG_ENDIAN_TPM
+    BN_RSA(bn_be);
+
+    BnCopy(bn_be, bn);
+#endif
     //
     // validate inputs
     pAssert(bn != NULL && buffer != NULL && size != NULL);
@@ -204,21 +209,21 @@ BnToBytes(
 #if BIG_ENDIAN_TPM
 	    // byte swap the words to make them little-endian
 	    for(count = 0; count < bn->size; count++)
-		bn->d[count] = SWAP_CRYPT_WORD(bn->d[count]);
+		bn_be->d[count] = SWAP_CRYPT_WORD(bn->d[count]);
 #endif
 	    // Byte swap the number (not words but the whole value)
 	    count = *size;
+#if BIG_ENDIAN_TPM
+	    pFrom = (BYTE *)(&bn_be->d[0]) + requiredSize - 1;
+#endif
+#if LITTLE_ENDIAN_TPM
 	    pFrom = (BYTE *)(&bn->d[0]) + requiredSize - 1;
+#endif
 	    pTo = buffer;
 	    for(count = *size; count > requiredSize; count--)
 		*pTo++ = 0;
 	    for(; requiredSize > 0; requiredSize--)
 		*pTo++ = *pFrom--;
-#if BIG_ENDIAN_TPM
-	    // Put the input back into big-endian format
-	    for(count = 0; count < bn->size; count++)
-		bn->d[count] = SWAP_CRYPT_WORD(bn->d[count]);
-#endif
 	}
     return TRUE;
 }
