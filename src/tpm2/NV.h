@@ -129,7 +129,10 @@ typedef struct {
    current value of s_maxCounter which is a 64-bit value. The structure is defined as an array of 3
    UINT32 values so that there is no padding between the UINT32 list end marker and the UIT64m()
    maxCounter value. */
-typedef UINT32 NV_LIST_TERMINATOR[3];
+typedef struct {
+    UINT32          reserved;
+    UINT64          maxCount;
+} NV_LIST_TERMINATOR;
 
 /* 5.15.3	Orderly RAM Values */
 
