@@ -31,6 +31,7 @@ Makefile
 /m4/*
 /tests/base64decode
 /tests/freebl_sha1flattensize
+/tests/bitfield_test
 /debian/*debhelper*
 /debian/*substvars
 /debian/files
