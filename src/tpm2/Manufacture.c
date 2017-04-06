@@ -93,7 +93,8 @@ TPM_Manufacture(
 	return 1;
     s_DAPendingOnNV = FALSE;
     // initialize NV
-    NvManufacture();
+    if (firstTime)
+        NvManufacture();
     // Clear the magic value in the DRBG state
     go.drbgState.magic = 0;
     CryptStartup(SU_RESET);

@@ -112,7 +112,7 @@ TPM_RESULT TPM2_MainInit(void)
         TPM_Manufacture(TRUE);
     else {
         if (!once) {
-            TPM_Manufacture(TRUE);
+            TPM_Manufacture(FALSE);
         }
         once = 1;
     }
