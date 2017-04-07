@@ -72,15 +72,27 @@ void TPMLIB_LogPrintfA(unsigned int indent, const char *format, ...);
 TPM_RC
 VolatileState_Load(BYTE **buffer, INT32 *size)
 {
-    TPM_RC rc;
+    TPM_RC rc = TPM_RC_SUCCESS;
+    BYTE hash[SHA1_DIGEST_SIZE], acthash[SHA1_DIGEST_SIZE];
+    UINT16 hashAlg = TPM_ALG_SHA1;
 
-    TPMLIB_LogPrintfA(0, "before *size=%d\n", *size);
-    rc = VolatileState_Unmarshal(buffer, size);
+    if (rc == TPM_RC_SUCCESS) {
+        CryptHashBlock(hashAlg, *size - sizeof(hash), *buffer,
+                       sizeof(acthash), acthash);
+        rc = VolatileState_Unmarshal(buffer, size);
+    }
 
-    TPMLIB_LogPrintfA(0, "after  *size=%d\n", *size);
-    /* all state must have been consumed */
+    if (rc == TPM_RC_SUCCESS) {
+        rc = Array_Unmarshal(hash, sizeof(hash), buffer, size);
+    }
 
-    assert(*size == 0);
+    if (rc == TPM_RC_SUCCESS) {
+        if (memcmp(acthash, hash, sizeof(hash))) {
+            TPMLIB_LogPrintfA(0, "libtpms/tpm2: Volatile state checksum error\n");
+            rc = TPM_RC_HASH;
+        }
+    }
+
     /* FIXME: any functions to call here? */
 
     return rc;
@@ -90,8 +102,16 @@ UINT16
 VolatileState_Save(BYTE **buffer, INT32 *size)
 {
     UINT16 written;
+    const BYTE *start;
+    BYTE hash[SHA1_DIGEST_SIZE];
+    TPM_ALG_ID hashAlg = TPM_ALG_SHA1;
 
+    start = *buffer;
     written = VolatileState_Marshal(buffer, size);
+
+    /* append the checksum */
+    CryptHashBlock(hashAlg, written, start, sizeof(hash), hash);
+    written += Array_Marshal(hash, sizeof(hash), buffer, size);
 
     return written;
 }
