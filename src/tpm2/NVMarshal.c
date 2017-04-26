@@ -1293,9 +1293,10 @@ TPMU_SYM_KEY_BITS_SWAP(TPMU_SYM_KEY_BITS *t, TPMU_SYM_KEY_BITS *s,
         TPMI_ALG_HASH_SWAP(&t->xorr, &s->xorr);
 	break;
 #endif
-      default:
-        t->sym = htobe16(s->sym);
+      case TPM_ALG_NULL:
         break;
+      default:
+        pAssert(FALSE);
     }
 }
 
@@ -1324,23 +1325,26 @@ TPMU_SYM_MODE_SWAP(TPMU_SYM_MODE *t, TPMU_SYM_MODE *s, TPMI_ALG_SYM type)
       case TPM_ALG_NULL:
 	break;
       default:
-        TPMI_ALG_SYM_MODE_SWAP(&t->sym, &s->sym);
-	break;
+        pAssert(FALSE);
     }
 }
 
 static void
-TPMT_SYM_DEF_OBJECT_SWAP(TPMT_SYM_DEF_OBJECT *t, TPMT_SYM_DEF_OBJECT *s)
+TPMT_SYM_DEF_OBJECT_SWAP(TPMT_SYM_DEF_OBJECT *t, TPMT_SYM_DEF_OBJECT *s,
+                         bool to_native)
 {
     TPMI_ALG_SYM_OBJECT_SWAP(&t->algorithm, &s->algorithm);
-    TPMU_SYM_KEY_BITS_SWAP(&t->keyBits, &s->keyBits, s->algorithm);
-    TPMU_SYM_MODE_SWAP(&t->mode, &s->mode, s->algorithm);
+    TPMU_SYM_KEY_BITS_SWAP(&t->keyBits, &s->keyBits,
+                           to_native ? t->algorithm : s->algorithm);
+    TPMU_SYM_MODE_SWAP(&t->mode, &s->mode,
+                       to_native ? t->algorithm : s->algorithm);
 }
 
 static inline void
-TPMS_SYMCIPHER_PARMS_SWAP(TPMS_SYMCIPHER_PARMS *t, TPMS_SYMCIPHER_PARMS *s)
+TPMS_SYMCIPHER_PARMS_SWAP(TPMS_SYMCIPHER_PARMS *t, TPMS_SYMCIPHER_PARMS *s,
+                          bool to_native)
 {
-    TPMT_SYM_DEF_OBJECT_SWAP(&t->sym, &s->sym);
+    TPMT_SYM_DEF_OBJECT_SWAP(&t->sym, &s->sym, to_native);
 }
 
 static inline void
@@ -1376,10 +1380,12 @@ TPMS_SCHEME_XOR_SWAP(TPMS_SCHEME_XOR *t, TPMS_SCHEME_XOR *s)
 }
 
 static inline void
-TPMT_KEYEDHASH_SCHEME_SWAP(TPMT_KEYEDHASH_SCHEME *t, TPMT_KEYEDHASH_SCHEME *s)
+TPMT_KEYEDHASH_SCHEME_SWAP(TPMT_KEYEDHASH_SCHEME *t, TPMT_KEYEDHASH_SCHEME *s,
+                           bool to_native)
 {
     TPMI_ALG_KEYEDHASH_SCHEME_SWAP(&t->scheme, &s->scheme);
-    TPMU_SCHEME_KEYEDHASH_SWAP(&t->details, &s->details, t->scheme);
+    TPMU_SCHEME_KEYEDHASH_SWAP(&t->details, &s->details,
+                               to_native ? t->scheme : s->scheme);
 }
 
 static inline void
@@ -1442,7 +1448,7 @@ TPMU_SCHEME_KEYEDHASH_SWAP(TPMU_SCHEME_KEYEDHASH *t, TPMU_SCHEME_KEYEDHASH *s,
       case TPM_ALG_NULL:
 	break;
       default:
-        break;
+	pAssert(FALSE);
     }
 }
 
@@ -1518,10 +1524,12 @@ TPMU_KDF_SCHEME_SWAP(TPMU_KDF_SCHEME *t, TPMU_KDF_SCHEME *s,
 }
 
 static inline void
-TPMT_KDF_SCHEME_SWAP(TPMT_KDF_SCHEME *t, TPMT_KDF_SCHEME *s)
+TPMT_KDF_SCHEME_SWAP(TPMT_KDF_SCHEME *t, TPMT_KDF_SCHEME *s,
+                     bool to_native)
 {
     TPMI_ALG_KDF_SWAP(&t->scheme, &s->scheme);
-    TPMU_KDF_SCHEME_SWAP(&t->details, &s->details, s->scheme);
+    TPMU_KDF_SCHEME_SWAP(&t->details, &s->details,
+                         to_native ? t->scheme : s->scheme);
 }
 
 static void
@@ -1582,7 +1590,7 @@ TPMU_ASYM_SCHEME_SWAP(TPMU_ASYM_SCHEME *t, TPMU_ASYM_SCHEME *s,
       case TPM_ALG_NULL:
 	break;
       default:
-	break;
+	pAssert(FALSE);
     }
 }
 
@@ -1593,10 +1601,12 @@ TPMI_ALG_RSA_SCHEME_SWAP(TPMI_ALG_RSA_SCHEME *t, TPMI_ALG_RSA_SCHEME *s)
 }
 
 static inline void
-TPMT_RSA_SCHEME_SWAP(TPMT_RSA_SCHEME *t, TPMT_RSA_SCHEME *s)
+TPMT_RSA_SCHEME_SWAP(TPMT_RSA_SCHEME *t, TPMT_RSA_SCHEME *s,
+                     bool to_native)
 {
     TPMI_ALG_RSA_SCHEME_SWAP(&t->scheme, &s->scheme);
-    TPMU_ASYM_SCHEME_SWAP(&t->details, &s->details, s->scheme);
+    TPMU_ASYM_SCHEME_SWAP(&t->details, &s->details,
+                          to_native ? t->scheme : s->scheme);
 }
 
 static inline void 
@@ -1661,77 +1671,83 @@ TPMU_PUBLIC_ID_SWAP(TPMU_PUBLIC_ID *t, TPMU_PUBLIC_ID *s,
 }
 
 static inline void
-TPMT_ECC_SCHEME_SWAP(TPMT_ECC_SCHEME *t, TPMT_ECC_SCHEME *s)
+TPMT_ECC_SCHEME_SWAP(TPMT_ECC_SCHEME *t, TPMT_ECC_SCHEME *s,
+                     bool to_native)
 {
     TPMI_ALG_ECC_SCHEME_SWAP(&t->scheme, &s->scheme);
-    TPMU_ASYM_SCHEME_SWAP(&t->details, &s->details, s->scheme);
+    TPMU_ASYM_SCHEME_SWAP(&t->details, &s->details,
+                          to_native ? t->scheme : s->scheme);
 }
 
 static inline void
-TPMS_KEYEDHASH_PARMS_SWAP(TPMS_KEYEDHASH_PARMS *t, TPMS_KEYEDHASH_PARMS *s)
+TPMS_KEYEDHASH_PARMS_SWAP(TPMS_KEYEDHASH_PARMS *t, TPMS_KEYEDHASH_PARMS *s,
+                          bool to_native)
 {
-    TPMT_KEYEDHASH_SCHEME_SWAP(&t->scheme, &s->scheme);
+    TPMT_KEYEDHASH_SCHEME_SWAP(&t->scheme, &s->scheme, to_native);
 }
 
 static void
-TPMS_RSA_PARMS_SWAP(TPMS_RSA_PARMS *t, TPMS_RSA_PARMS *s)
+TPMS_RSA_PARMS_SWAP(TPMS_RSA_PARMS *t, TPMS_RSA_PARMS *s, bool to_native)
 {
-    TPMT_SYM_DEF_OBJECT_SWAP(&t->symmetric, &s->symmetric);
-    TPMT_RSA_SCHEME_SWAP(&t->scheme, &s->scheme);
+    TPMT_SYM_DEF_OBJECT_SWAP(&t->symmetric, &s->symmetric, to_native);
+    TPMT_RSA_SCHEME_SWAP(&t->scheme, &s->scheme, to_native);
     TPMI_RSA_KEY_BITS_SWAP(&t->keyBits, &s->keyBits);
     t->exponent = htobe32(s->exponent);
 }
 
 #ifdef TPM_ALG_ECC
 static void
-TPMS_ECC_PARMS_SWAP(TPMS_ECC_PARMS *t, TPMS_ECC_PARMS *s)
+TPMS_ECC_PARMS_SWAP(TPMS_ECC_PARMS *t, TPMS_ECC_PARMS *s, bool to_native)
 {
-    TPMT_SYM_DEF_OBJECT_SWAP(&t->symmetric, &s->symmetric);
-    TPMT_ECC_SCHEME_SWAP(&t->scheme, &s->scheme);
+    TPMT_SYM_DEF_OBJECT_SWAP(&t->symmetric, &s->symmetric, to_native);
+    TPMT_ECC_SCHEME_SWAP(&t->scheme, &s->scheme, to_native);
     TPMI_ECC_CURVE_SWAP(&t->curveID, &s->curveID);
-    TPMT_KDF_SCHEME_SWAP(&t->kdf, &s->kdf);
+    TPMT_KDF_SCHEME_SWAP(&t->kdf, &s->kdf, to_native);
 }
 #endif
 
 static void
 TPMU_PUBLIC_PARMS_SWAP(TPMU_PUBLIC_PARMS *t, TPMU_PUBLIC_PARMS *s,
-                       TPMI_ALG_PUBLIC type)
+                       TPMI_ALG_PUBLIC type, bool to_native)
 {
     switch (type) {
 #ifdef TPM_ALG_KEYEDHASH
       case TPM_ALG_KEYEDHASH:
-        TPMS_KEYEDHASH_PARMS_SWAP(&t->keyedHashDetail, &s->keyedHashDetail);
+        TPMS_KEYEDHASH_PARMS_SWAP(&t->keyedHashDetail, &s->keyedHashDetail,
+                                  to_native);
 	break;
 #endif
 #ifdef TPM_ALG_SYMCIPHER
       case TPM_ALG_SYMCIPHER:
-	TPMS_SYMCIPHER_PARMS_SWAP(&t->symDetail, &s->symDetail);
+	TPMS_SYMCIPHER_PARMS_SWAP(&t->symDetail, &s->symDetail, to_native);
 	break;
 #endif
 #ifdef TPM_ALG_RSA
       case TPM_ALG_RSA:
-	TPMS_RSA_PARMS_SWAP(&t->rsaDetail, &s->rsaDetail);
+	TPMS_RSA_PARMS_SWAP(&t->rsaDetail, &s->rsaDetail, to_native);
 	break;
 #endif
 #ifdef TPM_ALG_ECC
       case TPM_ALG_ECC:
-	TPMS_ECC_PARMS_SWAP(&t->eccDetail, &s->eccDetail);
+	TPMS_ECC_PARMS_SWAP(&t->eccDetail, &s->eccDetail, to_native);
 	break;
 #endif
       default:
-        break;
+	pAssert(FALSE);
     }
 }
 
 static void
-TPMT_PUBLIC_SWAP(TPMT_PUBLIC *t, TPMT_PUBLIC *s)
+TPMT_PUBLIC_SWAP(TPMT_PUBLIC *t, TPMT_PUBLIC *s, bool to_native)
 {
     TPMI_ALG_PUBLIC_SWAP(&t->type, &s->type);
     TPMI_ALG_HASH_SWAP(&t->nameAlg, &s->nameAlg);
     TPMA_OBJECT_SWAP(&t->objectAttributes, &s->objectAttributes);
     TPM2B_SWAP(&t->authPolicy.b, &s->authPolicy.b, sizeof(t->authPolicy.t.buffer));
-    TPMU_PUBLIC_PARMS_SWAP(&t->parameters, &s->parameters, s->type);
-    TPMU_PUBLIC_ID_SWAP(&t->unique, &s->unique, s->type);
+    TPMU_PUBLIC_PARMS_SWAP(&t->parameters, &s->parameters,
+                           to_native ? t->type : s->type, to_native);
+    TPMU_PUBLIC_ID_SWAP(&t->unique, &s->unique,
+                        to_native ? t->type : s->type);
 }
 
 static void
@@ -1760,12 +1776,12 @@ TPMU_SENSITIVE_COMPOSITE_SWAP(TPMU_SENSITIVE_COMPOSITE *t, TPMU_SENSITIVE_COMPOS
 	break;
 #endif
       default:
-        break;
+	pAssert(FALSE);
     }
 }
 
 static void
-TPMT_SENSITIVE_SWAP(TPMT_SENSITIVE *t, TPMT_SENSITIVE *s)
+TPMT_SENSITIVE_SWAP(TPMT_SENSITIVE *t, TPMT_SENSITIVE *s, bool to_native)
 {
     TPMI_ALG_PUBLIC_SWAP(&t->sensitiveType, &s->sensitiveType);
     TPM2B_SWAP(&t->authValue.b, &s->authValue.b,
@@ -1773,13 +1789,14 @@ TPMT_SENSITIVE_SWAP(TPMT_SENSITIVE *t, TPMT_SENSITIVE *s)
     TPM2B_SWAP(&t->seedValue.b, &s->seedValue.b,
                sizeof(t->seedValue.t.buffer));
     TPMU_SENSITIVE_COMPOSITE_SWAP(&t->sensitive, &s->sensitive,
-                                  s->sensitiveType);
+                                  to_native ? t->sensitiveType
+                                            : s->sensitiveType);
 }
 
 /************** Functions related to Global.h **********/
 
 void
-OBJECT_SWAP(OBJECT *t, OBJECT *s)
+OBJECT_SWAP(OBJECT *t, OBJECT *s, bool to_native)
 {
     UINT32 attributes, attributes_be;
 
@@ -1788,8 +1805,8 @@ OBJECT_SWAP(OBJECT *t, OBJECT *s)
 
     memcpy(&t->attributes, &attributes_be, sizeof(t->attributes));
 
-    TPMT_PUBLIC_SWAP(&t->publicArea, &s->publicArea);
-    TPMT_SENSITIVE_SWAP(&t->sensitive, &s->sensitive);
+    TPMT_PUBLIC_SWAP(&t->publicArea, &s->publicArea, to_native);
+    TPMT_SENSITIVE_SWAP(&t->sensitive, &s->sensitive, to_native);
 
 #ifdef TPM_ALG_RSA
     privateExponent_t_SWAP(&t->privateExponent, &s->privateExponent);
@@ -2236,7 +2253,7 @@ NvRead_OBJECT(OBJECT *data, UINT32 nvOffset, UINT32 size)
 
     NvRead(&t, nvOffset, size);
 
-    OBJECT_SWAP(data, &t);
+    OBJECT_SWAP(data, &t, TRUE);
 }
 
 void
