@@ -925,15 +925,14 @@ extern STATE_RESET_DATA gr;
 #else
 
 #define NV_WRITE_PERSISTENT(to, from)					\
-    if (1) {								\
+    do {								\
         PERSISTENT_DATA mgp;						\
-        NvRead_PERSISTENT_DATA(&mgp, NV_PERSISTENT_DATA, sizeof(mgp));	\
-        mgp.to = from;							\
+        NvRead_PERSISTENT_DATA(&mgp, NV_PERSISTENT_DATA, sizeof(mgp));  \
+        memcpy(&mgp.to, &from, sizeof(mgp.to));				\
         NvWrite_PERSISTENT_DATA(NV_PERSISTENT_DATA, sizeof(mgp), &mgp);	\
-    }
+    } while (0)
 
-#define NV_SYNC_PERSISTENT(item) \
-        NvWrite_PERSISTENT_DATA(NV_PERSISTENT_DATA, sizeof(gp), &gp)
+#define NV_SYNC_PERSISTENT(item) NV_WRITE_PERSISTENT(item, gp.item)
 
 #endif
 /* At the start of command processing, the index of the command is determined. This index value is
