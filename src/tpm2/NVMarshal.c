@@ -1249,7 +1249,7 @@ TPMS_PCR_SELECTION_SWAP(TPMS_PCR_SELECTION *t, TPMS_PCR_SELECTION *s)
 {
     TPMI_ALG_HASH_SWAP(&t->hash, &s->hash);
     t->sizeofSelect = s->sizeofSelect;
-    *t->pcrSelect = *s->pcrSelect;
+    memcpy(t->pcrSelect, s->pcrSelect, sizeof(t->pcrSelect));
 }
 
 static void
