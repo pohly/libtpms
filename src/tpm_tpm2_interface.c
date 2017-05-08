@@ -58,6 +58,7 @@
 #include "tpm2/Simulator_fp.h"
 #include "tpm2/_TPM_Hash_Data_fp.h"
 #include "tpm2/StateMarshal.h"
+#include "tpm2/_TPM_Init_fp.h"
 
 /*
  * Check whether the main NVRAM file exists. Return TRUE if it doesn, FALSE otherwise
@@ -85,7 +86,6 @@ TPM_BOOL _TPM2_CheckNVRAMFileExists(void)
 TPM_RESULT TPM2_MainInit(void)
 {
     TPM_RESULT ret = TPM_SUCCESS;
-    static int once = 0;
 
 #ifdef TPM_LIBTPMS_CALLBACKS
     struct libtpms_callbacks *cbs = TPMLIB_GetCallbacks();
@@ -105,21 +105,16 @@ TPM_RESULT TPM2_MainInit(void)
 
     _rpc__Signal_PowerOff();
 
-    _plat__NVEnable(NULL);
-
-    /* FIXME: this should probably only be called if no file exists */
-    if (!_TPM2_CheckNVRAMFileExists())
+    if (!_TPM2_CheckNVRAMFileExists()) {
+        _plat__NVEnable(NULL);
         TPM_Manufacture(TRUE);
-    else {
-        if (!once) {
-            TPM_Manufacture(FALSE);
-        }
-        once = 1;
     }
 
     _rpc__Signal_PowerOn(FALSE);
 
     _rpc__Signal_NvOn();
+
+    _TPM_Init();
 
     return ret;
 }
