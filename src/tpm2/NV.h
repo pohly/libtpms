@@ -132,7 +132,7 @@ typedef struct {
 typedef struct {
     UINT32          reserved;
     UINT64          maxCount;
-} NV_LIST_TERMINATOR;
+} __attribute__((packed)) NV_LIST_TERMINATOR;
 
 /* 5.15.3	Orderly RAM Values */
 
