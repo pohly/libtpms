@@ -34,4 +34,6 @@ int main(void)
          NV_INDEX_RAM_DATA,
          NV_INDEX_RAM_DATA);
   assert(NV_INDEX_RAM_DATA == 0x1200);
+
+  return 0;
 }
