@@ -87,6 +87,14 @@ VolatileState_Load(BYTE **buffer, INT32 *size)
     }
 
     if (rc == TPM_RC_SUCCESS) {
+        /*
+         * advance pointer towards hash if we have a later version of
+         * the state that has extra data we didn't read
+         */
+        if (*size > 0 && (UINT32)*size > sizeof(hash)) {
+            *buffer += *size - sizeof(hash);
+            *size = sizeof(hash);
+        }
         rc = Array_Unmarshal(hash, sizeof(hash), buffer, size);
         if (rc != TPM_RC_SUCCESS) {
             TPMLIB_LogPrintfA(0, "libtpms/tpm2: Error unmarshalling volatile "
