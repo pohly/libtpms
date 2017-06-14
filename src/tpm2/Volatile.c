@@ -67,7 +67,7 @@
 #include "NVMarshal.h"
 #include "Volatile.h"
 
-void TPMLIB_LogPrintfA(unsigned int indent, const char *format, ...);
+#include "tpm_library_intern.h"
 
 TPM_RC
 VolatileState_Load(BYTE **buffer, INT32 *size)
@@ -80,10 +80,18 @@ VolatileState_Load(BYTE **buffer, INT32 *size)
         CryptHashBlock(hashAlg, *size - sizeof(hash), *buffer,
                        sizeof(acthash), acthash);
         rc = VolatileState_Unmarshal(buffer, size);
+        if (rc != TPM_RC_SUCCESS) {
+            TPMLIB_LogPrintfA(0, "libtpms/tpm2: Error unmarshalling volatile "
+                              "state: 0x%02x", rc);
+        }
     }
 
     if (rc == TPM_RC_SUCCESS) {
         rc = Array_Unmarshal(hash, sizeof(hash), buffer, size);
+        if (rc != TPM_RC_SUCCESS) {
+            TPMLIB_LogPrintfA(0, "libtpms/tpm2: Error unmarshalling volatile "
+                              "state hash: 0x%02x", rc);
+        }
     }
 
     if (rc == TPM_RC_SUCCESS) {
@@ -93,7 +101,8 @@ VolatileState_Load(BYTE **buffer, INT32 *size)
         }
     }
 
-    /* FIXME: any functions to call here? */
+    if (rc != TPM_RC_SUCCESS)
+        g_inFailureMode = TRUE;
 
     return rc;
 }

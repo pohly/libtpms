@@ -31,6 +31,10 @@ VolatileLoad(void)
         ret = cbs->tpm_nvram_loaddata(&data, &length, tpm_number, name);
         if (ret == TPM_SUCCESS) {
             VolatileState_Load(&data, (INT32 *)&length);
+            /*
+             * if this failed, VolatileState_Load will have started
+             * failure mode.
+             */
         }
     }
 #endif /* TPM_LIBTPMS_CALLBACKS */
