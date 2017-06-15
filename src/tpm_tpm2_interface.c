@@ -59,6 +59,9 @@
 #include "tpm2/_TPM_Hash_Data_fp.h"
 #include "tpm2/StateMarshal.h"
 #include "tpm2/_TPM_Init_fp.h"
+#include "tpm2/TpmTypes.h"
+
+extern BOOL      g_inFailureMode;
 
 /*
  * Check whether the main NVRAM file exists. Return TRUE if it doesn, FALSE otherwise
@@ -115,6 +118,11 @@ TPM_RESULT TPM2_MainInit(void)
     _rpc__Signal_NvOn();
 
     _TPM_Init();
+
+    if (ret == TPM_SUCCESS) {
+        if (g_inFailureMode)
+            ret = TPM_RC_FAILURE;
+    }
 
     return ret;
 }
