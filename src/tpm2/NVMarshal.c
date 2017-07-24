@@ -939,7 +939,7 @@ VolatileState_Marshal(BYTE **buffer, INT32 *size)
     written += BOOL_Marshal(&g_powerWasLost, buffer, size); /* line 504 */
     /* g_clearOrderly: can skip since it seems to only be valid during execution of a command */
     /* g_prevOrderlyState: must write */
-    written += UINT8_Marshal((UINT8 *)&g_prevOrderlyState, buffer, size); /* line 516 */
+    written += UINT16_Marshal(&g_prevOrderlyState, buffer, size); /* line 516 */
     /* g_nvOk: must write */
     written += BOOL_Marshal(&g_nvOk, buffer, size); /* line 522 */
     /* g_NvStatus: can skip since it seems to only be valid during execution of a command */
@@ -1083,7 +1083,7 @@ VolatileState_Unmarshal(BYTE **buffer, INT32 *size)
         rc = BOOL_Unmarshal(&g_powerWasLost, buffer, size); /* line 504 */
     }
     if (rc == TPM_RC_SUCCESS) {
-        rc = UINT8_Unmarshal((UINT8 *)&g_prevOrderlyState, buffer, size); /* line 516 */
+        rc = UINT16_Unmarshal(&g_prevOrderlyState, buffer, size); /* line 516 */
     }
     if (rc == TPM_RC_SUCCESS) {
         rc = BOOL_Unmarshal(&g_nvOk, buffer, size); /* line 522 */
