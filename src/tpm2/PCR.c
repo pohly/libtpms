@@ -308,6 +308,7 @@ GetSavedPcrPointer(
 	    break;
 	}
     FAIL(FATAL_ERROR_INTERNAL);
+    return NULL;
 }
 /* 8.7.3.9 PcrIsAllocated() */
 /* This function indicates if a PCR number for the particular hash algorithm is allocated. */
@@ -528,7 +529,8 @@ PCRStartup(
 				    pcrSavedData = GetSavedPcrPointer(
 								      gp.pcrAllocated.pcrSelections[j].hash,
 								      saveIndex);
-				    MemoryCopy(pcrData, pcrSavedData, pcrSize);
+				    if (pcrSavedData)
+				        MemoryCopy(pcrData, pcrSavedData, pcrSize);
 				}
 			    else
 				// PCR was not restored by state save
@@ -586,7 +588,8 @@ PCRStateSave(
 				    pcrSavedData
 					= GetSavedPcrPointer(gp.pcrAllocated.pcrSelections[j].hash,
 							     saveIndex);
-				    MemoryCopy(pcrSavedData, pcrData, pcrSize);
+				    if (pcrSavedData)
+				        MemoryCopy(pcrSavedData, pcrData, pcrSize);
 				}
 			}
 		}

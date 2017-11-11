@@ -797,6 +797,7 @@ CryptEccValidateSignature(
 #endif
 	  default:
 	    FAIL(FATAL_ERROR_INTERNAL);
+	    retVal = TPM_RC_FAILURE;
 	}
  Exit:
     CURVE_FREE(E);
